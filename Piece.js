@@ -49,6 +49,8 @@ class Piece {
     to.setAttribute("piece", this.name);
     this.pos = this.getPosition(to);
     this.changeTurn();
+    if(this.name.includes("Rook") && !this.moved) this.moved = true;
+    if (this.name.includes("King") && !this.moved) this.moved = true;
   }
 
   changeTurn() {
@@ -59,7 +61,7 @@ class Piece {
     }
   }
 
-  leadsToCheck(from, to,val) {
+  leadsToCheck(from, to,val=0) {
     this.pos = this.getPosition(to);
     to.appendChild(this.el);
     if (
@@ -95,17 +97,23 @@ class Piece {
 
   // MAIN MOVE
   move(from, to) {
+    if (this.name.includes("King") && this.castle(to)) {
+      console.log("Move king and rook");
+    }
     var val = this.validateMove(from, to);
     if (val === false) return false;
     if (this.stillCheck(from, to)) return false;
     if (!this.validateCheck(from, to,val)) return false;
+
     this.asignPiece(from, to);
 
     let w = Game.board.wKing.underCheck();
     let b = Game.board.bKing.underCheck();
-    if(b || w) this.gameOver(); 
-
+    Game.board.wKing.makeRed(w);
+    Game.board.bKing.makeRed(b);
+    if(b || w) this.gameOver();
   }
+
 
 
   validateMove(fromSquare, toSquare) {
@@ -273,6 +281,7 @@ class Pawn extends Piece {
 class Rook extends Piece {
   constructor(name, team, pos, img) {
     super(name, team, pos, img);
+    this.moved = false;
   }
   getAvailablePositions(my) {
     let x = parseInt(my[0]);
@@ -506,7 +515,39 @@ class Queen extends Piece {
 class King extends Piece {
   constructor(name, team, pos, img) {
     super(name, team, pos, img);
+    this.moved = false;
   }
+
+  castle(to){
+    let pos = [
+      [6, 0],
+      [2, 0],
+      [6, 6],
+      [2, 6],
+    ];
+    console.log("da");
+    let move = this.getPosition(to);
+    let movedTo = pos.filter((p)=>{
+      return move[0] == p[0] && move[1] == p[1]
+    })
+    if(!movedTo.length>0) return false
+    if(this.moved == true) return false
+    if(to.hasChildNodes()) return false 
+
+    let from = this.el.parentElement
+    if (this.leadsToCheck(this.el.parentElement,to)) {
+     from.appendChild(this.el)
+     return false;
+    }
+
+  }
+
+  makeRed(c){
+    if(c) this.el.style.backgroundColor = "red";
+    else this.el.style.backgroundColor = "";
+  }
+
+
   getAvailablePositions(my) {
     let x = parseInt(my[0]);
     let y = parseInt(my[1]);
