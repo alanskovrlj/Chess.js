@@ -1,5 +1,4 @@
-import Board from "./Board.js";
-import { listenEvents } from "./eventHandler.js";
+import Board from "./Board.js";import { listenEvents } from "./eventHandler.js";
 
 class Game {
   constructor(root) {
