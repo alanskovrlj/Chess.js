@@ -1,5 +1,3 @@
-import Board from "./board.js";
-import Game from "./game.js";
 
 export function listenEvents(root, callBack) {
   var movedPiece;
